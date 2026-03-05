@@ -172,7 +172,6 @@ class CapaLogicaNegocio:
                 }
             
     def _limpiar_habilidades(self, habilidades: List[str]) -> List[str]:
-        # ... (Tu código existente de limpieza) ...
         limpiadas = []
         vistas = set()
         palabras_excluir = ['click', 'show', 'more', 'less', 'see', 'view', 'apply', 'job', 'description']
@@ -186,7 +185,7 @@ class CapaLogicaNegocio:
                 limpiadas.append(limpia)
         return limpiadas
 
-    # --- NUEVA FUNCIÓN: LÓGICA DE GPT ---
+    # --- LÓGICA DE GPT ---
     def _analizar_con_gpt(self, titulo: str, habilidades: List[str]) -> str:
         """
         Envía las habilidades a ChatGPT para obtener un resumen profesional.
@@ -216,7 +215,7 @@ class CapaLogicaNegocio:
             """
 
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo", # Puedes usar gpt-4 si tienes acceso
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "Eres un asistente experto en RRHH y tecnología."},
                     {"role": "user", "content": prompt}
@@ -230,10 +229,11 @@ class CapaLogicaNegocio:
         except Exception as e:
             return f"❌ Error al consultar ChatGPT: {str(e)}"
 
+    def generar_resumen_ia(self, titulo: str, habilidades: List[str]) -> str:
+        """Método público para solicitar el resumen de IA a demanda"""
+        return self._analizar_con_gpt(titulo, habilidades)
+
     def procesar_busqueda(self, termino_busqueda: str) -> Dict:
-        """
-        Método principal actualizado para incluir GPT
-        """
         try:
             print("[LÓGICA] Iniciando proceso...")
             termino_limpio = termino_busqueda.lower().replace("linkedin", "").strip()
@@ -242,21 +242,15 @@ class CapaLogicaNegocio:
             
             self.iniciar_navegador()
             
-            # 1. Extraer habilidades (Scraping)
             print("[LÓGICA] Extrayendo datos...")
             resultado_extraccion = self.extraer_habilidades_linkedin(url_seleccionada)
             
             if not resultado_extraccion['exito']:
                 return resultado_extraccion
             
-            # 2. Analizar con GPT (NUEVO PASO)
-            print("[LÓGICA] Analizando con ChatGPT...")
-            resumen_gpt = self._analizar_con_gpt(
-                resultado_extraccion['titulo_oferta'], 
-                resultado_extraccion['habilidades']
-            )
+            # ELIMINAMOS LA LLAMADA AUTOMÁTICA A GPT AQUÍ
 
-            # Preparar datos completos
+            # Preparar datos completos sin el resumen aún
             datos_completos = {
                 'termino_busqueda': termino_busqueda,
                 'titulo_oferta': resultado_extraccion['titulo_oferta'],
@@ -264,14 +258,14 @@ class CapaLogicaNegocio:
                 'habilidades': resultado_extraccion['habilidades'],
                 'fecha_extraccion': resultado_extraccion['fecha_extraccion'],
                 'total_habilidades': len(resultado_extraccion['habilidades']),
-                'resumen_ia': resumen_gpt # Guardamos también el resumen
+                'resumen_ia': "" # Inicialmente vacío
             }
             
             return {
                 'exito': True,
                 'habilidades': resultado_extraccion['habilidades'],
                 'titulo_oferta': resultado_extraccion['titulo_oferta'],
-                'resumen_ia': resumen_gpt, # <-- Retornamos el resumen
+                'resumen_ia': "", # Inicialmente vacío
                 'datos_completos': datos_completos
             }
         
@@ -281,7 +275,7 @@ class CapaLogicaNegocio:
         finally:
             self.cerrar_navegador()
 
-    # ... (Mantén guardar_datos IGUAL) ...
+
     def guardar_datos(self, datos: Dict, formato: str) -> List[str]:
         rutas = []
         if formato in ['1', '3']: rutas.append(self.capa_datos.guardar_json(datos))
