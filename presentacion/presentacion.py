@@ -1,4 +1,3 @@
-from typing import List
 import gradio as gr
 import pandas as pd
 
@@ -8,42 +7,39 @@ class CapaPresentacion:
     """
     
     def __init__(self):
-        self.capa_logica = None
+        # Esta referencia ahora será un objeto de JobService (El Orquestador/Fachada)
+        self.servicio = None
     
-    def set_capa_logica(self, capa_logica):
-        """Establece la referencia a la capa de lógica de negocio"""
-        self.capa_logica = capa_logica
+    def set_capa_logica(self, servicio):
+        """Establece la referencia al servicio principal (JobService)"""
+        self.servicio = servicio
     
     def _buscar_y_generar_descargas(self, termino_busqueda: str):
         """
-        Función que llama la lógica de negocio, extrae datos y genera los archivos.
+        Función que llama al servicio, extrae datos y genera los archivos.
         """
-        # 1. Estado INICIAL
+        # 1. Estado INICIAL (Limpiando la pantalla)
         yield (
-            "Iniciando búsqueda en LinkedIn... (Esto puede tardar un poco)", # status_output
-            None, # titulo_output
-            None, # habilidades_output
-            gr.Button(visible=False), # resumen_btn (Oculto)
-            gr.DownloadButton(visible=False), # json_download_btn
-            gr.DownloadButton(visible=False), # excel_download_btn
-            [], # state_habilidades (Vacío)
+            "⏳ Iniciando búsqueda en LinkedIn... (Esto puede tardar unos segundos)", # Estado
+            None, # Título
+            None, # Habilidades (DataFrame)
+            gr.Button(visible=False), # Ocultar botón IA
+            gr.DownloadButton(visible=False), # Ocultar JSON
+            gr.DownloadButton(visible=False), # Ocultar Excel
+            [], # Limpiar estado interno
             "El análisis de la vacante aparecerá aquí..." # Limpiar resumen
         )
         
-        # 2. Ejecutar la lógica de negocio
-        resultado = self.capa_logica.procesar_busqueda(termino_busqueda)
+        # 2. Ejecutar la búsqueda en el servicio
+        resultado = self.servicio.procesar_busqueda(termino_busqueda)
         
-        if not resultado['exito']:
+        if not resultado.get('exito', False):
             # 3. Manejar error
             yield (
-                f"[ERROR] {resultado['mensaje']}", 
-                None, 
-                None, 
-                gr.Button(visible=False), 
-                gr.DownloadButton(visible=False), 
-                gr.DownloadButton(visible=False),
-                [],
-                "❌ Ocurrió un error en la búsqueda."
+                f"❌ [ERROR] {resultado.get('mensaje', 'Error desconocido')}", 
+                None, None, 
+                gr.Button(visible=False), gr.DownloadButton(visible=False), gr.DownloadButton(visible=False),
+                [], "❌ Ocurrió un error en la búsqueda."
             )
             return
 
@@ -52,130 +48,118 @@ class CapaPresentacion:
         titulo = resultado['titulo_oferta']
         habilidades = resultado['habilidades']
         
-        # Convertir lista de habilidades a un DataFrame de Pandas
+        # Convertir a DataFrame para que Gradio lo muestre como tabla
         df_habilidades = pd.DataFrame(habilidades, columns=["Habilidades Encontradas"])
 
-        # Estado INTERMEDIO (Generando archivos)
+        # Estado INTERMEDIO
         yield (
-            "Búsqueda exitosa. Generando archivos...", 
-            titulo, 
-            df_habilidades, 
-            gr.Button(visible=False), 
-            gr.DownloadButton(visible=False), 
-            gr.DownloadButton(visible=False),
-            habilidades, # Guardamos la lista en el estado
-            "Archivos generados. Puedes solicitar el resumen con IA."
+            "✅ Búsqueda exitosa. Generando archivos de exportación...", 
+            titulo, df_habilidades, 
+            gr.Button(visible=False), gr.DownloadButton(visible=False), gr.DownloadButton(visible=False),
+            habilidades, "Archivos generados. Puedes solicitar el resumen con IA."
         )
 
-        # 5. Guardar los datos
+        # 5. Guardar los datos (Usando la Fábrica internamente)
         try:
-            rutas = self.capa_logica.guardar_datos(datos_completos, '3')
+            rutas = self.servicio.guardar_datos(datos_completos, '3') # '3' guarda ambos (JSON y Excel)
             ruta_json = next(r for r in rutas if r.endswith('.json'))
             ruta_excel = next(r for r in rutas if r.endswith('.xlsx'))
         except Exception as e:
             yield (
-                f"[ERROR] No se pudieron guardar los archivos: {str(e)}",
-                titulo,
-                df_habilidades,
-                gr.Button(visible=True), # Permitir IA aunque fallen los archivos
-                gr.DownloadButton(visible=False),
-                gr.DownloadButton(visible=False),
-                habilidades,
-                "Archivos no guardados, pero puedes solicitar el resumen."
+                f"⚠️ [ADVERTENCIA] Extracción exitosa, pero falló el guardado: {str(e)}",
+                titulo, df_habilidades,
+                gr.Button(visible=True), # Permitimos usar la IA aunque no se guarde
+                gr.DownloadButton(visible=False), gr.DownloadButton(visible=False),
+                habilidades, "Archivos no guardados, pero la IA está lista."
             )
             return
 
-        # 6. Finalizar y mostrar los botones
+        # 6. Finalizar y mostrar todos los botones
         yield (
-            "¡Extracción completa! Archivos listos. Puedes generar un resumen con IA si lo deseas.", 
+            "🎉 ¡Proceso completado! Archivos listos para descarga. ¿Deseas un resumen con IA?", 
             titulo, 
             df_habilidades, 
-            gr.Button(visible=True), # Mostramos el botón de IA
-            gr.DownloadButton(label="Descargar JSON", value=ruta_json, visible=True),
-            gr.DownloadButton(label="Descargar Excel", value=ruta_excel, visible=True),
-            habilidades, # Mantenemos las habilidades en estado
-            "Esperando acción del usuario..."
+            gr.Button(visible=True), # Mostramos botón IA
+            gr.DownloadButton(label="📥 Descargar JSON", value=ruta_json, visible=True),
+            gr.DownloadButton(label="📊 Descargar Excel", value=ruta_excel, visible=True),
+            habilidades, # Guardamos en memoria para la IA
+            "Esperando acción..."
         )
 
     def _generar_resumen_ia(self, titulo: str, habilidades: list):
         """
-        Función que se ejecuta al presionar el botón de IA.
+        Detona la llamada a OpenAI solo cuando el usuario lo solicita.
         """
         if not titulo or not habilidades:
-            yield "⚠️ No hay datos para analizar. Realiza una búsqueda primero."
+            yield "⚠️ No hay datos para analizar. Por favor, extrae una oferta primero."
             return
             
-        yield "⏳ Analizando con Inteligencia Artificial. Por favor espera..."
+        yield "🧠 Analizando requerimientos con IA. Por favor espera..."
         
-        # Llamamos al nuevo método público de la capa de lógica
-        resumen = self.capa_logica.generar_resumen_ia(titulo, habilidades)
+        resumen = self.servicio.generar_resumen_ia(titulo, habilidades)
         
         yield resumen
 
     def lanzar_interfaz(self):
         """
-        Construye y lanza la interfaz gráfica de Gradio.
+        Construye y lanza la interfaz web.
         """
-        with gr.Blocks(title="Analista de Vacantes LinkedIn con IA") as iface:
-            gr.Markdown("# 🤖 Analista de Vacantes LinkedIn + ChatGPT")
-            gr.Markdown("Ingresa un puesto (ej. 'Software Tester Linkedin'), extrae las habilidades y **opcionalmente** genera un resumen con IA.")
+        # Tema visual un poco más moderno
+        tema = gr.themes.Soft(primary_hue="blue", secondary_hue="indigo")
+        
+        with gr.Blocks(title="Scraper de Vacantes LinkedIn", theme=tema) as iface:
+            gr.Markdown("# 🤖 Extractor Inteligente de Vacantes en LinkedIn")
+            gr.Markdown("Busca un puesto, extrae las habilidades técnicas requeridas y, de forma **opcional**, genera un análisis estratégico con ChatGPT.")
 
-            # Variable de estado oculta para almacenar las habilidades en crudo
+            # Estado oculto en la interfaz para pasar datos entre funciones
             state_habilidades = gr.State([])
 
-            with gr.Column():
-                with gr.Row():
-                    termino_input = gr.Textbox(
-                        label="Puesto a buscar",
-                        placeholder="Ej: React Frontend Developer",
-                        scale=4
-                    )
-                    buscar_btn = gr.Button("🔍 Extraer Oferta", variant="primary", scale=1)
+            with gr.Row():
+                termino_input = gr.Textbox(
+                    label="Puesto a buscar",
+                    placeholder="Ej: Node.js Backend Developer",
+                    scale=4
+                )
+                buscar_btn = gr.Button("🔍 Extraer Datos", variant="primary", scale=1)
             
             gr.Markdown("---")
             
             with gr.Row():
-                # Columna Izquierda: Datos crudos
+                # Columna Izquierda (Resultados Crudos)
                 with gr.Column(scale=1):
                     status_output = gr.Textbox(label="Estado del Sistema", interactive=False)
-                    titulo_output = gr.Textbox(label="Título Detectado", interactive=False)
+                    titulo_output = gr.Textbox(label="Título de la Oferta Detectada", interactive=False)
                     habilidades_output = gr.DataFrame(headers=["Habilidades Detectadas"], interactive=False)
                     
                     with gr.Row():
-                        json_download_btn = gr.DownloadButton(label="Descargar JSON", visible=False)
-                        excel_download_btn = gr.DownloadButton(label="Descargar Excel", visible=False)
+                        json_download_btn = gr.DownloadButton(label="📥 Descargar JSON", visible=False)
+                        excel_download_btn = gr.DownloadButton(label="📊 Descargar Excel", visible=False)
 
-                # Columna Derecha: Análisis de IA
+                # Columna Derecha (Resumen de IA)
                 with gr.Column(scale=1):
                     gr.Markdown("### 🧠 Análisis de Inteligencia Artificial")
-                    # Botón para detonar la IA, oculto por defecto
-                    resumen_btn = gr.Button("✨ Generar Resumen con IA", variant="secondary", visible=False)
-                    resumen_output = gr.Markdown(value="El análisis de la vacante aparecerá aquí...")
+                    resumen_btn = gr.Button("✨ Generar Resumen Estratégico", variant="secondary", visible=False)
+                    resumen_output = gr.Markdown(value="El análisis de la vacante aparecerá aquí una vez que lo solicites...")
 
-            # --- LÓGICA DE EVENTOS (CLICS) ---
+            # --- CONEXIÓN DE EVENTOS ---
             
-            # Evento 1: Botón de buscar (Solo Scraping)
+            # 1. Al presionar "Extraer Datos"
             buscar_btn.click(
                 fn=self._buscar_y_generar_descargas,
                 inputs=[termino_input],
                 outputs=[
-                    status_output,
-                    titulo_output,
-                    habilidades_output,
-                    resumen_btn,          # Mostraremos este botón al terminar
-                    json_download_btn,
-                    excel_download_btn,
-                    state_habilidades,    # Guardamos las habilidades extraídas
-                    resumen_output        # Reiniciamos el texto
+                    status_output, titulo_output, habilidades_output,
+                    resumen_btn, json_download_btn, excel_download_btn,
+                    state_habilidades, resumen_output
                 ]
             )
             
-            # Evento 2: Botón de Resumen con IA (Solo API OpenAI)
+            # 2. Al presionar "Generar Resumen Estratégico"
             resumen_btn.click(
                 fn=self._generar_resumen_ia,
                 inputs=[titulo_output, state_habilidades],
                 outputs=[resumen_output]
             )
         
-        print("[INFO] Lanzando interfaz con IA...")
+        print("\n[SISTEMA] Iniciando interfaz gráfica...")
         iface.launch()

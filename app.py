@@ -1,27 +1,24 @@
-from logica_negocio import logica
-from presentacion import presentacion
+from presentacion.presentacion import CapaPresentacion
+from logica_negocio.servicio_vacantes import JobService
+from scraping.linkedin_scraper import LinkedInScraper
 
 def main():
-    """
-    Función principal que inicia el sistema
-    """
     try:
-        # Crear capa de presentación
-        capa_presentacion = presentacion.CapaPresentacion()
+        # 1. Instanciar la Estrategia concreta que queremos usar hoy
+        scraper_linkedin = LinkedInScraper()
         
-        # Crear capa de lógica de negocio
-        capa_logic = logica.CapaLogicaNegocio()
+        # 2. Instanciar el Servicio (Fachada) inyectando la estrategia
+        servicio = JobService(scraper=scraper_linkedin)
         
-        # Conectar capas
-        capa_presentacion.set_capa_logica(capa_logic)
-
-        # Ejecutar sistema
-        capa_presentacion.lanzar_interfaz()
+        # 3. Configurar la Presentación
+        presentacion = CapaPresentacion()
+        presentacion.set_capa_logica(servicio) # Ahora recibe el JobService
         
-    except KeyboardInterrupt:
-        print("\n\n[SISTEMA] Operación cancelada por el usuario.")
+        # 4. Iniciar
+        presentacion.lanzar_interfaz()
+        
     except Exception as e:
-        print(f"\n[SISTEMA] Error fatal: {str(e)}")
+        print(f"Error fatal: {e}")
 
 if __name__ == "__main__":
     main()
