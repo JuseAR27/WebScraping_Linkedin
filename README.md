@@ -13,7 +13,7 @@ Este proyecto es una aplicación web moderna diseñada para automatizar la extra
 - **Análisis con IA (On-Demand)**: Genera resúmenes profesionales, stacks tecnológicos y niveles de experiencia requeridos usando la API de OpenAI solo cuando el usuario lo solicita.
 - **Exportación Multi-formato**: Permite descargar los datos extraídos en formatos **JSON** y **Excel (XLSX)** para un análisis posterior.
 - **Arquitectura Limpia**: Código organizado bajo principios SOLID y patrones de diseño (**Estrategia, Fábrica y Fachada**).
-- **Interfaz Web Moderna**: Interfaz responsiva con **Modo Oscuro** (Dark Mode) construida con Flask, HTML5, CSS3 y JavaScript.
+- **Interfaz Web Moderna**: Interfaz responsiva construida con Flask, HTML5, CSS3 y JavaScript.
 
 ## Stack Tecnológico
 
@@ -21,7 +21,7 @@ Este proyecto es una aplicación web moderna diseñada para automatizar la extra
 - **Scraping**: Selenium, WebDriver Manager, BeautifulSoup4
 - **Procesamiento de Datos**: Pandas, Openpyxl
 - **IA**: OpenAI API (GPT-3.5/4)
-- **Frontend**: HTML5, CSS3 (Custom Dark Theme), JavaScript (Fetch API)
+- **Frontend**: HTML5, CSS3, JavaScript (Fetch API)
 
 ## Requisitos Previos
 
