@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analista de Vacantes LinkedIn</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 Extractor Inteligente de Vacantes en LinkedIn</h1>
+        <p>Busca un puesto, extrae las habilidades técnicas requeridas y genera un análisis estratégico con ChatGPT.</p>
+    </header>
+
+    <div class="search-box">
+        <input type="text" id="puesto-input" placeholder="Ej: React Frontend Developer" required>
+        <button id="btn-buscar" class="btn-primary" onclick="buscarOferta()">🔍 Extraer Datos</button>
+    </div>
+
+    <div class="results-grid">
+        
+        <div class="card">
+            <h3>📊 Resultados de Extracción</h3>
+            
+            <p><strong>Estado:</strong> <span id="status-text">Esperando búsqueda...</span></p>
+            <p><strong>Título Detectado:</strong> <span id="titulo-text">N/A</span></p>
+            
+            <div id="downloads-container" class="hidden">
+                <a id="download-json" href="#" class="btn-download" download>📥 JSON</a>
+                <a id="download-excel" href="#" class="btn-download" download>📊 Excel</a>
+            </div>
+
+            <div class="skills-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Habilidades Detectadas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skills-body">
+                        <tr><td>No hay datos aún.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🧠 Análisis de Inteligencia Artificial</h3>
+            <button id="btn-ia" class="btn-secondary hidden" onclick="generarResumenIA()">✨ Generar Resumen Estratégico</button>
+            <div id="ai-output">
+                El análisis de la vacante aparecerá aquí una vez que lo solicites...
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

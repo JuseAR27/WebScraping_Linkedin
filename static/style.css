@@ -1,0 +1,171 @@
+:root {
+    --primary-color: #6366f1; /* Índigo un poco más brillante para resaltar en fondo oscuro */
+    --primary-hover: #4f46e5;
+    --secondary-color: #38bdf8; /* Azul claro vibrante */
+    --bg-color: #0b0f19; /* Fondo muy oscuro */
+    --card-bg: #1f2937; /* Fondo de tarjetas gris oscuro */
+    --text-main: #f3f4f6; /* Texto principal casi blanco */
+    --text-muted: #9ca3af; /* Texto secundario grisáceo */
+    --border-color: #374151; /* Bordes sutiles */
+    --input-bg: #111827; /* Fondo de la barra de búsqueda */
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+/* Sección de Búsqueda */
+.search-box {
+    display: flex;
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    background-color: var(--input-bg);
+    color: var(--text-main);
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+}
+
+/* Botones */
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.btn-download {
+    display: inline-block;
+    background-color: #10b981; /* Verde brillante para el botón de descarga */
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-right: 10px;
+    margin-top: 15px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.skills-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--border-color); 
+    position: sticky;
+    top: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#ai-output {
+    background-color: var(--bg-color); 
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-height: 200px;
+}
+
+/* Responsivo para celulares */
+@media (max-width: 768px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+    .search-box {
+        flex-direction: column;
+    }
+}
