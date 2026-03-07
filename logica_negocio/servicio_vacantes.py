@@ -8,7 +8,7 @@ import os
 
 class JobService:
     """
-    Patrón Fachada: Orquesta el flujo entre el Scraper, el Limpiador, la IA y los Exportadores.
+    Patrón Facade: Orquesta el flujo entre el Scraper, el Limpiador, la IA y los Exportadores.
     """
     def __init__(self, scraper: ScraperStrategy):
         # Recibimos el scraper mediante "Inyección de Dependencias"

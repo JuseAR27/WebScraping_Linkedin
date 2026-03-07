@@ -27,7 +27,6 @@ class TextCleaner:
             limpia = re.sub(r'\s+', ' ', habilidad).strip()
             
             # 2. Eliminar caracteres especiales (manteniendo los técnicos como # o +)
-            # Rescata la lógica de tu logica.py original
             limpia = re.sub(r'[^\w\s\+\#\.-_,\(\)]', '', limpia) 
             
             # 3. Validaciones de calidad

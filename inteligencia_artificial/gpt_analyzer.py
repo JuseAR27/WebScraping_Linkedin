@@ -3,7 +3,7 @@ from typing import List
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Cargar variables de entorno (por si acaso no se han cargado en app.py)
+# Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 class AIAnalyzer:
@@ -60,7 +60,7 @@ class AIAnalyzer:
 
             # Llamada a la API de OpenAI
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo", # Puedes actualizarlo a gpt-4o-mini o gpt-4 si lo deseas
+                model="gpt-3.5-turbo", # Si es neccesario, se puede actualizar a gpt-4o-mini o gpt-4
                 messages=[
                     {"role": "system", "content": "Eres un asistente experto en RRHH y tecnología."},
                     {"role": "user", "content": prompt}
@@ -73,5 +73,5 @@ class AIAnalyzer:
             return response.choices[0].message.content
 
         except Exception as e:
-            # Manejo de errores (por ejemplo, si te quedas sin saldo o no hay internet)
+            # Manejo de errores en la comunicación con la API
             return f"❌ Error al consultar ChatGPT: {str(e)}"

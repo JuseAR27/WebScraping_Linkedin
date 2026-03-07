@@ -19,7 +19,7 @@ class LinkedInScraper(ScraperStrategy):
         self.driver = None
 
     def _iniciar_navegador(self):
-        """Inicia el navegador Selenium (Código original de logica.py)"""
+        """Inicia el navegador Selenium con opciones para evitar detección."""
         options = webdriver.ChromeOptions()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"        
         options.add_argument(f'user-agent={user_agent}')
@@ -127,8 +127,8 @@ class LinkedInScraper(ScraperStrategy):
 
             print(f"[SCRAPER] Extracción bruta finalizada. Textos encontrados: {len(habilidades)}")
 
-            # OJO: Retornamos las habilidades_brutas SIN LIMPIAR. 
-            # La limpieza ocurrirá en tu nueva clase TextCleaner.
+            # Retornamos las habilidades_brutas SIN LIMPIAR. 
+            # La limpieza ocurrirá en clase TextCleaner.
             return {
                 'exito': True,
                 'titulo_oferta': titulo,
